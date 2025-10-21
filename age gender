@@ -1,0 +1,156 @@
+// ...existing code...
+function displayPassengerForms() {
+    const container = document.getElementById('passengerFormsContainer');
+    container.innerHTML = '';
+
+    for (let i = 0; i < bookingData.passengers; i++) {
+        const form = document.createElement('div');
+        form.className = 'passenger-form';
+        form.innerHTML = `
+            <h3>Passenger ${i + 1}</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" name="fullName_${i}" placeholder="JD Som" required>
+                </div>
+                <div class="form-group">
+                    <label>Age</label>
+                    <input type="number" name="age_${i}" min="0" max="120" placeholder="e.g. 34" required>
+                </div>
+                <div class="form-group">
+                    <label>Gender</label>
+                    <select name="gender_${i}" required>
+                        <option value="">Select</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                        <option value="Prefer not to say">Prefer not to say</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email_${i}" placeholder="jd@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" name="phone_${i}" placeholder="09xxxxxxxxx" required>
+                </div>
+            </div>
+        `;
+        container.appendChild(form);
+    }
+}
+// ...existing code...
+function handlePassengerSubmit(e) {
+    e.preventDefault();
+
+    let isValid = true;
+    bookingData.passengerDetails = [];
+
+    for (let i = 0; i < bookingData.passengers; i++) {
+        const fullName = document.querySelector(`input[name="fullName_${i}"]`).value.trim();
+        const ageStr = document.querySelector(`input[name="age_${i}"]`).value.trim();
+        const gender = document.querySelector(`select[name="gender_${i}"]`).value.trim();
+        const email = document.querySelector(`input[name="email_${i}"]`).value.trim();
+        const phone = document.querySelector(`input[name="phone_${i}"]`).value.trim();
+
+        const age = ageStr === '' ? null : parseInt(ageStr, 10);
+
+        if (!fullName || age === null || isNaN(age) || !gender || !email || !phone) {
+            isValid = false;
+        }
+
+        bookingData.passengerDetails.push({
+            fullName,
+            age,
+            gender,
+            email,
+            phone,
+            seat: `${i + 1}${String.fromCharCode(65 + (i % 6))}`
+        });
+    }
+
+    if (isValid) {
+        displaySummary();
+        goToStep(4);
+    } else {
+        alert('Please complete all passenger details (including age and gender).');
+    }
+}
+// ...existing code...
+function displaySummary() {
+    const s = bookingData.selectedFlight;
+    const summary = document.getElementById('summaryContent');
+
+    if (!s) {
+        summary.innerHTML = '<p>No flight selected.</p>';
+        return;
+    }
+
+    const basePrice = s.price;
+    const isPromo = (s.fareType || '').toLowerCase().includes('promo');
+    const discountAmount = isPromo ? basePrice * PROMO_DISCOUNT : 0;
+
+    // Build per-passenger fares: only first passenger gets discount (if promo)
+    const passengerFares = [];
+    for (let i = 0; i < bookingData.passengers; i++) {
+        if (isPromo && i === 0) {
+            passengerFares.push(basePrice - discountAmount);
+        } else {
+            passengerFares.push(basePrice);
+        }
+    }
+
+    const total = passengerFares.reduce((acc, v) => acc + v, 0);
+
+    const passengerSummaries = bookingData.passengerDetails.map((p, i) => `
+        <div class="summary-card">
+            <h3>Passenger ${i + 1}</h3>
+            <p><strong>Name:</strong> ${p.fullName}</p>
+            <p><strong>Age:</strong> ${p.age}</p>
+            <p><strong>Gender:</strong> ${p.gender}</p>
+            <p><strong>Seat:</strong> ${p.seat}</p>
+
+            <div class="flight-summary">
+                <h4>${s.from} (${s.from.slice(0,3).toUpperCase()}) → ${s.to} (${s.to.slice(0,3).toUpperCase()})</h4>
+                
+                <div class="flight-details-grid">
+                    <div>
+                        <p class="label">Departure</p>
+                        <p>${formatDate(s.departDate)} • ${convertTo12Hour(s.departTime)}</p>
+                    </div>
+                    ${bookingData.flightType === 'roundtrip' ? `
+                    <div>
+                        <p class="label">Return</p>
+                        <p>${formatDate(s.returnDate)} • ${convertTo12Hour(s.returnTime)}</p>
+                    </div>` : ''}
+                    <div>
+                        <p class="label">Flight Duration</p>
+                        <p>${s.duration}</p>
+                    </div>
+                    <div>
+                        <p class="label">Fare Type</p>
+                        <p>${s.fareType}</p>
+                    </div>
+                </div>
+
+                <div class="fare-amount">
+                    <p><strong>Fare:</strong> ₱${passengerFares[i].toLocaleString()}</p>
+                    ${isPromo && i === 0 ? `<p style="color:green;font-size:12px;margin-top:4px;">Promo applied: -₱${discountAmount.toLocaleString()} (${Math.round(PROMO_DISCOUNT*100)}%)</p>` : ''}
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    summary.innerHTML = `
+        ${passengerSummaries}
+        <div class="summary-card total">
+            <h3>💰 Total Fee</h3>
+            <p><strong>₱${total.toLocaleString()}</strong></p>
+            ${isPromo ? `<p style="font-size:13px;color:#666;margin-top:6px;">Promo: only first passenger received a ${Math.round(PROMO_DISCOUNT*100)}% discount.</p>` : ''}
+        </div>
+    `;
+}
+// ...existing code...
