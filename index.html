@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyWings Airlines - Book Your Flight</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Background Video -->
+    <video autoplay muted loop playsinline class="background-video">
+        <source src="airploop.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <div class="logo">✈️ SkyWings Airlines</div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-steps">
+                <div class="progress-line"></div>
+                <div class="progress-line-active" id="progressLine"></div>
+                
+                <div class="step">
+                    <div class="step-circle active" id="step1"><span>1</span></div>
+                    <div class="step-label">Booking Details</div>
+                </div>
+                <div class="step">
+                    <div class="step-circle" id="step2"><span>2</span></div>
+                    <div class="step-label">Select Flight</div>
+                </div>
+                <div class="step">
+                    <div class="step-circle" id="step3"><span>3</span></div>
+                    <div class="step-label">Passenger Info</div>
+                </div>
+                <div class="step">
+                    <div class="step-circle" id="step4"><span>4</span></div>
+                    <div class="step-label">Summary</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Home Section -->
+        <div class="content-section active" id="homeSection">
+            <div class="home-hero">
+                <h1>Welcome to SkyWings Airlines</h1>
+                <p>Your journey begins here. Fly with comfort and style.</p>
+                <button class="btn-primary" onclick="goToStep(1)">Book A Flight</button>
+            </div>
+        </div>
+
+        <!-- Booking Details Section -->
+        <div class="content-section" id="bookingSection">
+            <h2 class="section-title">Booking Details</h2>
+            <form id="bookingForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>From</label>
+                        <input type="text" id="fromLocation" placeholder="Enter Origin (e.g., Manila)" required>
+                    </div>
+                    <div class="form-group">
+                        <label>To</label>
+                        <input type="text" id="toLocation" placeholder="Enter Destination (e.g., Cebu)" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Flight Type</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="flightType" value="roundtrip" checked onchange="toggleReturnDate()"> Round Trip
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="flightType" value="oneway" onchange="toggleReturnDate()"> One Way
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Depart Date</label>
+                        <input type="date" id="departDate" required>
+                    </div>
+                    <div class="form-group" id="returnDateGroup">
+                        <label>Return Date</label>
+                        <input type="date" id="returnDate" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Number of Passengers</label>
+                    <input type="number" id="passengers" min="1" max="9" value="1" required>
+                </div>
+
+                <button type="submit" class="btn-primary">Search Flights</button>
+            </form>
+        </div>
+
+        <!-- Flight Selection Section -->
+        <div class="content-section" id="flightSection">
+            <h2 class="section-title">Available Flights</h2>
+            <div id="flightsContainer" class="flights-container"></div>
+            <div class="btn-group">
+                    <button type="button" class="btn-secondary" onclick="goToStep(1)">Back</button>
+                     </div>
+        </div>
+
+        <!-- Passenger Information Section -->
+        <div class="content-section" id="passengerSection">
+            <h2 class="section-title">Passenger Information</h2>
+            <form id="passengerForm">
+                <div id="passengerFormsContainer"></div>
+                <div class="btn-group">
+                    <button type="button" class="btn-secondary" onclick="goToStep(2)">Back</button>
+                    <button class="btn-primary" onclick="goToSummary()">Continue to Summary</button>
+
+                </div>
+            </form>
+        </div>
+
+        <!-- Summary Section -->
+        <div class="content-section" id="summarySection">
+            <h2 class="section-title">Booking Summary</h2>
+            <div id="summaryContent"></div>
+            <div class="btn-group">
+                <button type="button" class="btn-secondary" onclick="goToStep(3)">Back</button>
+                <button type="button" class="btn-primary" onclick="confirmBooking()">Book Now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal" id="successModal">
+        <div class="modal-content">
+            <div class="success-icon">✓</div>
+            <h2 class="success-title">Booking Successful!</h2>
+            <p>Your flight has been booked successfully.</p>
+            <button class="btn-primary" onclick="resetBooking()">Book Another Flight</button>
+        </div>
+    </div>
+
+    <!-- External JS -->
+    <script src="script.js"></script>
+</body>
+</html>
